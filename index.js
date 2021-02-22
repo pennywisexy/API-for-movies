@@ -14,7 +14,6 @@ app.get("/api/movies", function (req, res) {
 });
 
 app.get("/api/movies/:id", function (req, res) {
-  console.log(req.params.id);
   const id = req.params.id;
   const content = fs.readFileSync(filePath, "utf8");
   const dataMovies = JSON.parse(content);
@@ -36,8 +35,9 @@ app.get("/api/movies/:id", function (req, res) {
 });
 
 app.post("/api/movies", jsonParser, function (req, res) {
-  console.log(req.body);
+
   if (!req.body) return res.sendStatus(400);
+
   const movieDescription = req.body.description;
   const movieSources = req.body.sources;
   const movieSubtitle = req.body.subtitle;
@@ -56,19 +56,18 @@ app.post("/api/movies", jsonParser, function (req, res) {
 
   const id = Math.max.apply(
     Math,
-    movies.map(function (o) {
-      return +o.id;
+    movies.map(function (item) {
+      return +item.id;
     })
   );
-  console.log(id)
+
   movie.id = id + 1;
 
   movies.unshift(movie);
   data = JSON.stringify(dataMovies);
 
   fs.writeFileSync("data.json", data);
-  res.send(dataMovies);
-  console.log(movies)
+  res.send(movie);
 });
 
 app.put("/api/movies", jsonParser, function (req, res) {
