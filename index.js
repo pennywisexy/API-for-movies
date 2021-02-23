@@ -11,8 +11,6 @@ app.get("/api/movies", async function (req, res) {
 });
 
 app.get("/api/movies/:id", async function (req, res) {
-  console.log(req.params)
-
   const id = req.params.id;
   const movie = await Movie.findById(id);
   if (movie) {
@@ -23,7 +21,6 @@ app.get("/api/movies/:id", async function (req, res) {
 });
 
 app.post("/api/movies", async function (req, res) {
-  // console.log(req.body)
 
   if (!req.body) return res.sendStatus(400);
 
@@ -43,11 +40,9 @@ app.post("/api/movies", async function (req, res) {
 });
 
 app.post('/api/movies/edit', jsonParser, async (req, res) => {
-  const {id} = req.body;
-  delete req.body.id;
-  await Movie.findByIdAndUpdate(id, req.body, {useFindAndModify: false});
-  console.log('req.bodyreq.bodyreq.bodyreq.bodyreq.bodyreq.body')
-  console.log(req.body)
+  const {_id} = req.body;
+  delete req.body._id;
+  await Movie.findByIdAndUpdate(_id, req.body);
 })
 
 app.put("/api/movies", jsonParser, async function (req, res) {
@@ -77,3 +72,5 @@ async function start() {
 
 }
 start();
+
+
