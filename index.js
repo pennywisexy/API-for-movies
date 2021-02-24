@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const app = express();
 const jsonParser = express.json();
+const bcrypt = require('bcryptjs');
 
 const Movie = require('./models/movie');
 const User = require('./models/user');
@@ -73,8 +74,9 @@ app.post('/register', async (req, res) => {
     if (candidate) {
       console.log('User already created')
     } else {
+      const hashPassword = await bcrypt.hash(password, 10);
       const user = new User({
-        email, password, firstName, lastName
+        email, password: hashPassword, firstName, lastName
       })
 
       await user.save();
@@ -91,7 +93,7 @@ app.post('/login', async (req, res) => {
     const candidate = await User.findOne({email});
 
     if (candidate) {
-      const isSame = password === candidate.password;
+      const isSame = await bcrypt.compare(password, candidate.password);
 
       if (isSame) {
         req.session.user = candidate;
