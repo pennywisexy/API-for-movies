@@ -28,8 +28,9 @@ app.post("/api/movies", async function (req, res) {
     title: req.body.title,
     description: req.body.description,
     sources: req.body.sources,
-    subtitle : req.body.subtitle,
-    thumb: req.body.thumb
+    subtitle: req.body.subtitle,
+    thumb: req.body.thumb,
+    ratingValue: req.body.ratingValue
   })
   try {
     await movie.save();

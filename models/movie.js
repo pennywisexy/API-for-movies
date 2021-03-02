@@ -20,6 +20,10 @@ const movie = new Schema({
   thumb: {
     type: String,
     required: true
+  },
+  ratingValue: {
+    type: Number,
+    required: true
   }
 })
 
