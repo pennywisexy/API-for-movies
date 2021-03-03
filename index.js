@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const session = require('express-session');
+const cors = require('cors');
 const app = express();
 const jsonParser = express.json();
 const bcrypt = require('bcryptjs');
@@ -10,23 +11,16 @@ const User = require('./models/user');
 
 app.use(express.static(__dirname + "/public"));
 
+app.use(express.urlencoded({extended: true}));
+app.use(express.json());
+
 app.use(session({
   secret: 'some secret value',
   resave: false,
   saveUninitialized: false
-}))
+}));
 
-app.use((req, res, nxt) => {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:4200');
-    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Access-Control-Allow-Origin, Content-Type, Accept, Accept-Language, Origin, User-Agent');
-    if(req.method === 'OPTIONS') {
-      res.sendStatus(204);
-    }
-    else {
-      nxt();
-    }
-})
+app.use(cors());
 
 app.get("/api/movies", async function (req, res) {
   const movies = await Movie.find();
@@ -44,6 +38,7 @@ app.get("/api/movies/:id", async function (req, res) {
 });
 
 app.get("/api/users/:id", async function (req, res) {
+  console.log(req.body)
   const id = req.params.id;
   const user = await User.findById(id);
   if (user) {
@@ -54,7 +49,7 @@ app.get("/api/users/:id", async function (req, res) {
 });
 
 app.post("/api/movies", async function (req, res) {
-
+  console.log(req.body)
   if (!req.body) return res.sendStatus(400);
 
   const movie = new Movie({
@@ -73,6 +68,7 @@ app.post("/api/movies", async function (req, res) {
 });
 
 app.post('/api/movies/edit', jsonParser, async (req, res) => {
+  console.log(req.body)
   const {_id} = req.body;
   delete req.body._id;
   await Movie.findByIdAndUpdate(_id, req.body);
