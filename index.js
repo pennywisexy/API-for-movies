@@ -138,7 +138,7 @@ app.put("/api/movies", jsonParser, async function (req, res) {
 
 async function start() {
   try {
-  const url = 'mongodb+srv://hero:123456qwerty@cluster0.qxjxl.mongodb.net/movies';
+    const url = 'mongodb+srv://hero:123456qwerty@cluster0.qxjxl.mongodb.net/movies';
 
   await mongoose.connect(url, {
     useNewUrlParser: true,
@@ -148,6 +148,7 @@ async function start() {
     console.log("Server is running on port: 3000");
   });
   } catch (e) {
+    console.log('eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee');
     console.log(e);
   }
 
