@@ -38,7 +38,6 @@ app.get("/api/movies/:id", async function (req, res) {
 });
 
 app.get("/api/users/:id", async function (req, res) {
-  console.log(req.body)
   const id = req.params.id;
   const user = await User.findById(id);
   if (user) {
@@ -49,7 +48,6 @@ app.get("/api/users/:id", async function (req, res) {
 });
 
 app.post("/api/movies", async function (req, res) {
-  console.log(req.body)
   if (!req.body) return res.sendStatus(400);
 
   const movie = new Movie({
@@ -57,7 +55,8 @@ app.post("/api/movies", async function (req, res) {
     description: req.body.description,
     sources: req.body.sources,
     subtitle : req.body.subtitle,
-    thumb: req.body.thumb
+    thumb: req.body.thumb,
+    ratingValue: req.body.ratingValue
   })
   try {
     await movie.save();
@@ -67,8 +66,7 @@ app.post("/api/movies", async function (req, res) {
   }
 });
 
-app.post('/api/movies/edit', jsonParser, async (req, res) => {
-  console.log(req.body)
+app.post('/api/movies/edit', async (req, res) => {
   const {_id} = req.body;
   delete req.body._id;
   await Movie.findByIdAndUpdate(_id, req.body);
@@ -76,7 +74,9 @@ app.post('/api/movies/edit', jsonParser, async (req, res) => {
 
 app.post('/register', async (req, res) => {
   try {
-    const {email, password, firstName, lastName} = req.body;
+    const {email, password} = req.body;
+    const firstName = req.body['first-name'];
+    const lastName = req.body['last-name'];
     const candidate = await User.findOne({email});
 
     if (candidate) {
@@ -84,7 +84,10 @@ app.post('/register', async (req, res) => {
     } else {
       const hashPassword = await bcrypt.hash(password, 10);
       const user = new User({
-        email, password: hashPassword, firstName, lastName
+        email,
+        password: hashPassword,
+        'first-name': firstName,
+        'last-name': lastName
       })
 
       await user.save();
