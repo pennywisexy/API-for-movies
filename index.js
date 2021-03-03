@@ -114,8 +114,9 @@ app.post('/login', async (req, res) => {
             throw err;
           }
         })
+        res.send(candidate)
       } else {
-        console.log('Wrong log');
+        res.send({isLog: false})
       }
     } else {
       console.log('User is not found');
