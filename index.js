@@ -1,20 +1,35 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const session = require('express-session');
+const MongoStore = require('connect-mongodb-session')(session);
+const cors = require('cors');
 const app = express();
 const jsonParser = express.json();
 const bcrypt = require('bcryptjs');
+const varMiddleware = require('./middleware/variables');
 
 const Movie = require('./models/movie');
 const User = require('./models/user');
 
+const MONGODB_URI = 'mongodb+srv://hero:123456qwerty@cluster0.qxjxl.mongodb.net/movies';
+const store = new MongoStore({
+  collection: 'sessions',
+  uri: MONGODB_URI
+})
 app.use(express.static(__dirname + "/public"));
+
+app.use(express.urlencoded({extended: true}));
+app.use(express.json());
 
 app.use(session({
   secret: 'some secret value',
   resave: false,
-  saveUninitialized: false
-}))
+  saveUninitialized: false,
+  store
+}));
+app.use(varMiddleware);
+
+app.use(cors());
 
 app.get("/api/movies", async function (req, res) {
   const movies = await Movie.find();
@@ -41,8 +56,12 @@ app.get("/api/users/:id", async function (req, res) {
   }
 });
 
-app.post("/api/movies", async function (req, res) {
+app.get("/logout", async function (req, res) {
+  req.session.destroy();
+  res.send();
+});
 
+app.post("/api/movies", async function (req, res) {
   if (!req.body) return res.sendStatus(400);
 
   const movie = new Movie({
@@ -61,7 +80,7 @@ app.post("/api/movies", async function (req, res) {
   }
 });
 
-app.post('/api/movies/edit', jsonParser, async (req, res) => {
+app.post('/api/movies/edit', async (req, res) => {
   const {_id} = req.body;
   delete req.body._id;
   await Movie.findByIdAndUpdate(_id, req.body);
@@ -69,7 +88,9 @@ app.post('/api/movies/edit', jsonParser, async (req, res) => {
 
 app.post('/register', async (req, res) => {
   try {
-    const {email, password, firstName, lastName} = req.body;
+    const {email, password} = req.body;
+    const firstName = req.body['first-name'];
+    const lastName = req.body['last-name'];
     const candidate = await User.findOne({email});
 
     if (candidate) {
@@ -77,7 +98,10 @@ app.post('/register', async (req, res) => {
     } else {
       const hashPassword = await bcrypt.hash(password, 10);
       const user = new User({
-        email, password: hashPassword, firstName, lastName
+        email,
+        password: hashPassword,
+        'first-name': firstName,
+        'last-name': lastName
       })
 
       await user.save();
@@ -104,8 +128,9 @@ app.post('/login', async (req, res) => {
             throw err;
           }
         })
+        res.send(candidate)
       } else {
-        console.log('Wrong log');
+        res.send({isLog: false})
       }
     } else {
       console.log('User is not found');
@@ -127,15 +152,14 @@ app.put("/api/movies", jsonParser, async function (req, res) {
 
 async function start() {
   try {
-  const url = 'mongodb+srv://hero:123456qwerty@cluster0.qxjxl.mongodb.net/movies';
 
-  await mongoose.connect(url, {
-    useNewUrlParser: true,
-    useFindAndModify: false
-  });
-  app.listen(3000, function () {
-    console.log("Server is running on port: 3000");
-  });
+    await mongoose.connect(MONGODB_URI, {
+      useNewUrlParser: true,
+      useFindAndModify: false
+    });
+    app.listen(3000, function () {
+      console.log("Server is running on port: 3000");
+    });
   } catch (e) {
     console.log(e);
   }

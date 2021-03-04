@@ -22,7 +22,7 @@ const movie = new Schema({
     required: true
   },
   ratingValue: {
-    type: Number,
+    type: String,
     required: true
   }
 })
