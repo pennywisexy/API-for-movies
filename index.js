@@ -1,14 +1,21 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const session = require('express-session');
+const MongoStore = require('connect-mongodb-session')(session);
 const cors = require('cors');
 const app = express();
 const jsonParser = express.json();
 const bcrypt = require('bcryptjs');
+const varMiddleware = require('./middleware/variables');
 
 const Movie = require('./models/movie');
 const User = require('./models/user');
 
+const MONGODB_URI = 'mongodb+srv://hero:123456qwerty@cluster0.qxjxl.mongodb.net/movies';
+const store = new MongoStore({
+  collection: 'sessions',
+  uri: MONGODB_URI
+})
 app.use(express.static(__dirname + "/public"));
 
 app.use(express.urlencoded({extended: true}));
@@ -17,8 +24,10 @@ app.use(express.json());
 app.use(session({
   secret: 'some secret value',
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  store
 }));
+app.use(varMiddleware);
 
 app.use(cors());
 
@@ -45,6 +54,11 @@ app.get("/api/users/:id", async function (req, res) {
   } else {
     res.status(404).send();
   }
+});
+
+app.get("/logout", async function (req, res) {
+  req.session.destroy();
+  res.send();
 });
 
 app.post("/api/movies", async function (req, res) {
@@ -138,17 +152,15 @@ app.put("/api/movies", jsonParser, async function (req, res) {
 
 async function start() {
   try {
-    const url = 'mongodb+srv://hero:123456qwerty@cluster0.qxjxl.mongodb.net/movies';
 
-  await mongoose.connect(url, {
-    useNewUrlParser: true,
-    useFindAndModify: false
-  });
-  app.listen(3000, function () {
-    console.log("Server is running on port: 3000");
-  });
+    await mongoose.connect(MONGODB_URI, {
+      useNewUrlParser: true,
+      useFindAndModify: false
+    });
+    app.listen(3000, function () {
+      console.log("Server is running on port: 3000");
+    });
   } catch (e) {
-    console.log('eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee');
     console.log(e);
   }
 
