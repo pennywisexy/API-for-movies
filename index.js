@@ -30,6 +30,9 @@ app.use(session({
 app.use(varMiddleware);
 
 app.use(cors());
+// app.use(cors({origin: [
+//   "http://localhost:4200"
+// ], credentials: true}));
 
 app.get("/api/movies", async function (req, res) {
   const movies = await Movie.find();
@@ -57,6 +60,7 @@ app.get("/api/users/:id", async function (req, res) {
 });
 
 app.get("/logout", async function (req, res) {
+  console.log(req.session)
   req.session.destroy();
   res.send();
 });
