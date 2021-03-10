@@ -10,6 +10,7 @@ const varMiddleware = require('./middleware/variables');
 
 const Movie = require('./models/movie');
 const User = require('./models/user');
+const Comment = require('./models/comment');
 
 const MONGODB_URI = 'mongodb+srv://hero:123456qwerty@cluster0.qxjxl.mongodb.net/movies';
 const store = new MongoStore({
@@ -63,6 +64,11 @@ app.get("/logout", async function (req, res) {
   console.log(req.session)
   req.session.destroy();
   res.send();
+});
+
+app.get("/api/comments", async function (req, res) {
+  const comments = await Comment.find();
+  res.send(comments);
 });
 
 app.post("/api/movies", async function (req, res) {
@@ -142,7 +148,24 @@ app.post('/login', async (req, res) => {
   } catch (e) {
     console.log(e);
   }
-})
+});
+
+app.post("/api/comments", async function (req, res) {
+  if (!req.body) return res.sendStatus(400);
+
+  const comment = new Comment({
+    text: req.body.text.slice(3, req.body.text.length - 4),
+    date: req.body.date,
+    author: req.body.author,
+    userId: req.body.userId
+  })
+  try {
+    await comment.save();
+    res.send(comment);
+  } catch (e) {
+    console.log(e);
+  }
+});
 
 app.put("/api/movies", jsonParser, async function (req, res) {
 
