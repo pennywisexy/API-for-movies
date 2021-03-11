@@ -16,6 +16,10 @@ const commentScheme = new Schema({
   userId: {
     type: String,
     required: true
+  },
+  movieId: {
+    type: String,
+    required: true
   }
 }) 
 

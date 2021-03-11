@@ -31,9 +31,6 @@ app.use(session({
 app.use(varMiddleware);
 
 app.use(cors());
-// app.use(cors({origin: [
-//   "http://localhost:4200"
-// ], credentials: true}));
 
 app.get("/api/movies", async function (req, res) {
   const movies = await Movie.find();
@@ -66,8 +63,10 @@ app.get("/logout", async function (req, res) {
   res.send();
 });
 
-app.get("/api/comments", async function (req, res) {
-  const comments = await Comment.find();
+app.get("/api/comments/:id", async function (req, res) {
+  const comments = await Comment.find({
+    movieId: req.params.id
+  });
   res.send(comments);
 });
 
@@ -157,7 +156,8 @@ app.post("/api/comments", async function (req, res) {
     text: req.body.text.slice(3, req.body.text.length - 4),
     date: req.body.date,
     author: req.body.author,
-    userId: req.body.userId
+    userId: req.body.userId,
+    movieId: req.body.movieId
   })
   try {
     await comment.save();
