@@ -63,7 +63,7 @@ app.get("/logout", async function (req, res) {
   res.send();
 });
 
-app.get("/api/comments/:id", async function (req, res) {
+app.get("/api/movie/:id/comments", async function (req, res) {
   const comments = await Comment.find({
     movieId: req.params.id
   });
@@ -153,7 +153,7 @@ app.post("/api/comments", async function (req, res) {
   if (!req.body) return res.sendStatus(400);
 
   const comment = new Comment({
-    text: req.body.text.slice(3, req.body.text.length - 4),
+    text: req.body.text,
     date: req.body.date,
     author: req.body.author,
     userId: req.body.userId,
